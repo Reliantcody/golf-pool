@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import PlayerAutocomplete from "./PlayerAutocomplete";
 
 interface PicksFormProps {
   majorId: string;
@@ -13,12 +14,25 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [usedPlayers, setUsedPlayers] = useState<string[]>([]);
+  const [fieldPlayers, setFieldPlayers] = useState<string[]>([]);
+  const [fieldLoading, setFieldLoading] = useState(true);
 
-  // Load used players when name is entered
+  // Load player field on mount
+  useEffect(() => {
+    fetch(`/api/field?majorId=${majorId}`)
+      .then((r) => r.json())
+      .then((d) => setFieldPlayers(d.players ?? []))
+      .catch(() => setFieldPlayers([]))
+      .finally(() => setFieldLoading(false));
+  }, [majorId]);
+
+  // Load used players when name changes (debounced)
   useEffect(() => {
     const trimmed = name.trim();
-    if (trimmed.length < 2) return;
-
+    if (trimmed.length < 2) {
+      setUsedPlayers([]);
+      return;
+    }
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(
@@ -32,7 +46,6 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
         // ignore
       }
     }, 500);
-
     return () => clearTimeout(timer);
   }, [name, majorId]);
 
@@ -53,15 +66,14 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
       setError("Please enter your name.");
       return;
     }
-
     if (trimmedPlayers.some((p) => !p)) {
-      setError("Please enter all 5 player names.");
+      setError("Please select all 5 players.");
       return;
     }
 
     const unique = new Set(trimmedPlayers.map((p) => p.toLowerCase()));
     if (unique.size !== 5) {
-      setError("Each player must be unique within your submission.");
+      setError("Each player must be different.");
       return;
     }
 
@@ -70,13 +82,8 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
       const res = await fetch("/api/picks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: trimmedName,
-          majorId,
-          players: trimmedPlayers,
-        }),
+        body: JSON.stringify({ name: trimmedName, majorId, players: trimmedPlayers }),
       });
-
       const data = await res.json();
       if (!res.ok || data.error) {
         setError(data.error ?? "Something went wrong. Please try again.");
@@ -102,21 +109,14 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
           <p className="font-semibold text-green-800 mb-1">Your picks:</p>
           <ul className="text-green-700 space-y-0.5">
             {players.map((p, i) => (
-              <li key={i}>
-                {i + 1}. {p}
-              </li>
+              <li key={i}>{i + 1}. {p}</li>
             ))}
           </ul>
         </div>
         <div className="mt-4 flex gap-3 justify-center">
-          <a href="/" className="text-sm text-green-700 underline">
-            View leaderboard
-          </a>
+          <a href="/" className="text-sm text-green-700 underline">View leaderboard</a>
           <button
-            onClick={() => {
-              setSuccess(false);
-              setPlayers(["", "", "", "", ""]);
-            }}
+            onClick={() => { setSuccess(false); setPlayers(["", "", "", "", ""]); }}
             className="text-sm text-gray-500 underline"
           >
             Submit for someone else
@@ -127,10 +127,7 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-xl border p-6 space-y-5"
-    >
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border p-6 space-y-5">
       <h3 className="font-bold text-green-900 text-lg">
         Submit Your Picks — {majorName}
       </h3>
@@ -149,16 +146,15 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
           required
         />
         <p className="text-xs text-gray-400 mt-1">
-          Use the same name each week to update your picks before the deadline.
+          Use the same name each week to update picks before the deadline.
         </p>
       </div>
 
       {/* Previously used players warning */}
       {usedPlayers.length > 0 && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-700">
-          <p className="font-semibold mb-1">Players you&apos;ve already used this year:</p>
+          <p className="font-semibold mb-1">Already used this year (unavailable):</p>
           <p>{usedPlayers.join(", ")}</p>
-          <p className="mt-1 text-orange-500">You cannot pick these players again.</p>
         </div>
       )}
 
@@ -167,40 +163,44 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Pick 5 Players
           <span className="text-gray-400 font-normal ml-2 text-xs">
-            (enter full names as they appear on the PGA Tour)
+            {fieldLoading ? "Loading field..." : `${fieldPlayers.length} players in field · type to search`}
           </span>
         </label>
         <div className="space-y-2">
           {players.map((player, i) => {
             const isUsed =
-              usedPlayers.some(
-                (u) => u.toLowerCase() === player.trim().toLowerCase()
-              ) && player.trim().length > 0;
+              usedPlayers.some((u) => u.toLowerCase() === player.trim().toLowerCase()) &&
+              player.trim().length > 0;
+            const isDupe =
+              players.some(
+                (p, j) => j !== i && p.toLowerCase() === player.toLowerCase() && player.length > 0
+              );
 
             return (
               <div key={i} className="flex items-center gap-2">
-                <span className="w-6 text-center text-sm font-bold text-gray-400">
+                <span className="w-6 text-center text-sm font-bold text-gray-400 flex-shrink-0">
                   {i + 1}
                 </span>
-                <input
-                  type="text"
+                <PlayerAutocomplete
                   value={player}
-                  onChange={(e) => updatePlayer(i, e.target.value)}
-                  placeholder={`Player ${i + 1}`}
-                  className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 ${
-                    isUsed
-                      ? "border-red-400 focus:ring-red-400 bg-red-50"
-                      : "border-gray-300 focus:ring-green-500"
-                  }`}
-                  required
+                  onChange={(v) => updatePlayer(i, v)}
+                  players={fieldPlayers}
+                  usedPlayers={usedPlayers}
+                  index={i}
                 />
                 {isUsed && (
-                  <span className="text-red-500 text-xs">Already used</span>
+                  <span className="text-red-500 text-xs flex-shrink-0">Used</span>
+                )}
+                {isDupe && !isUsed && (
+                  <span className="text-orange-500 text-xs flex-shrink-0">Duplicate</span>
                 )}
               </div>
             );
           })}
         </div>
+        <p className="text-xs text-gray-400 mt-2">
+          Type at least 2 letters to search. Select from the dropdown to ensure the name matches exactly.
+        </p>
       </div>
 
       {error && (
@@ -211,7 +211,7 @@ export default function PicksForm({ majorId, majorName }: PicksFormProps) {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || fieldLoading}
         className="w-full bg-green-700 hover:bg-green-600 disabled:bg-gray-300 text-white font-bold py-3 rounded-xl transition-colors text-sm"
       >
         {loading ? "Submitting..." : "Submit Picks"}
