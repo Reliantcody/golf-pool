@@ -6,36 +6,40 @@ export const metadata: Metadata = {
   description: "Major championship golf pool — pick 5 players per major",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <header className="bg-green-900 text-white shadow-lg">
-          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⛳</span>
-              <div>
-                <h1 className="text-xl font-bold leading-tight">Golf Pool 2026</h1>
-                <p className="text-green-300 text-xs">4 Majors · Pick 5 Players Each</p>
-              </div>
+      <body className="min-h-screen bg-[#f3f4f2]">
+        {/* Header */}
+        <header className="bg-[#0a2b1e] shadow-lg">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <a href="/" className="flex items-center gap-3 group">
+                <span className="text-2xl">⛳</span>
+                <div>
+                  <p className="text-white font-bold text-base leading-tight tracking-tight">Golf Pool 2026</p>
+                  <p className="text-green-400 text-[11px] leading-tight">4 Majors · Pick 5 · Score 4</p>
+                </div>
+              </a>
+              <nav className="flex items-center gap-3 text-sm font-semibold">
+                <a href="/" className="text-green-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10">
+                  Leaderboard
+                </a>
+                <a href="/picks" className="bg-[#c9a84c] hover:bg-[#d4b86a] text-[#0a2b1e] px-4 py-1.5 rounded-full transition-colors font-bold text-sm shadow">
+                  My Picks
+                </a>
+              </nav>
             </div>
-            <nav className="flex gap-4 text-sm font-medium">
-              <a href="/" className="text-green-200 hover:text-white transition-colors">
-                Leaderboard
-              </a>
-              <a href="/picks" className="bg-yellow-500 hover:bg-yellow-400 text-green-900 px-3 py-1 rounded-full transition-colors font-semibold">
-                My Picks
-              </a>
-            </nav>
           </div>
         </header>
+
+        {/* Content */}
         <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
-        <footer className="max-w-5xl mx-auto px-4 py-6 text-center text-xs text-gray-400 border-t mt-8">
-          Golf Pool 2026 · Scores via ESPN · Updates every 5 minutes
+
+        <footer className="max-w-5xl mx-auto px-4 py-6 mt-4 border-t border-gray-200 flex items-center justify-between text-xs text-gray-400">
+          <span>Golf Pool 2026</span>
+          <span>Scores via ESPN · Updates every 5 min</span>
+          <a href="/admin" className="hover:text-gray-600 transition-colors">Admin</a>
         </footer>
       </body>
     </html>

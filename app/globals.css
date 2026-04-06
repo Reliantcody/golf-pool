@@ -2,12 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --green-dark: #1a4d2e;
-  --green-mid: #2d6a4f;
-  --gold: #c9a84c;
-}
-
 body {
-  @apply bg-gray-50 text-gray-900;
+  background-color: #f3f4f2;
+  color: #1a1a1a;
 }

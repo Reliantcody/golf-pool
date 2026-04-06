@@ -66,6 +66,50 @@ export async function fetchLeaderboard(
   }
 }
 
+// Mock data for testing the scoring logic before the tournament starts
+export function getMockLeaderboard(): ESPNLeaderboard {
+  return {
+    eventName: "The Masters — Preview Mode",
+    eventId: "mock",
+    currentRound: 4,
+    isComplete: true,
+    players: [
+      { displayName: "Scottie Scheffler",  score: -15, totalStrokes: 273, madeCut: true,  position: "1",   round: 4, status: "complete" },
+      { displayName: "Rory McIlroy",       score: -12, totalStrokes: 276, madeCut: true,  position: "2",   round: 4, status: "complete" },
+      { displayName: "Collin Morikawa",    score: -10, totalStrokes: 278, madeCut: true,  position: "T3",  round: 4, status: "complete" },
+      { displayName: "Xander Schauffele",  score: -10, totalStrokes: 278, madeCut: true,  position: "T3",  round: 4, status: "complete" },
+      { displayName: "Ludvig Åberg",       score: -9,  totalStrokes: 279, madeCut: true,  position: "5",   round: 4, status: "complete" },
+      { displayName: "Tommy Fleetwood",    score: -8,  totalStrokes: 280, madeCut: true,  position: "T6",  round: 4, status: "complete" },
+      { displayName: "Viktor Hovland",     score: -8,  totalStrokes: 280, madeCut: true,  position: "T6",  round: 4, status: "complete" },
+      { displayName: "Jon Rahm",           score: -7,  totalStrokes: 281, madeCut: true,  position: "T8",  round: 4, status: "complete" },
+      { displayName: "Patrick Cantlay",    score: -7,  totalStrokes: 281, madeCut: true,  position: "T8",  round: 4, status: "complete" },
+      { displayName: "Shane Lowry",        score: -6,  totalStrokes: 282, madeCut: true,  position: "T10", round: 4, status: "complete" },
+      { displayName: "Hideki Matsuyama",   score: -6,  totalStrokes: 282, madeCut: true,  position: "T10", round: 4, status: "complete" },
+      { displayName: "Justin Thomas",      score: -5,  totalStrokes: 283, madeCut: true,  position: "T12", round: 4, status: "complete" },
+      { displayName: "Jordan Spieth",      score: -5,  totalStrokes: 283, madeCut: true,  position: "T12", round: 4, status: "complete" },
+      { displayName: "Brooks Koepka",      score: -4,  totalStrokes: 284, madeCut: true,  position: "T14", round: 4, status: "complete" },
+      { displayName: "Bryson DeChambeau",  score: -4,  totalStrokes: 284, madeCut: true,  position: "T14", round: 4, status: "complete" },
+      { displayName: "Sahith Theegala",    score: -3,  totalStrokes: 285, madeCut: true,  position: "T16", round: 4, status: "complete" },
+      { displayName: "Wyndham Clark",      score: -3,  totalStrokes: 285, madeCut: true,  position: "T16", round: 4, status: "complete" },
+      { displayName: "Russell Henley",     score: -2,  totalStrokes: 286, madeCut: true,  position: "T18", round: 4, status: "complete" },
+      { displayName: "Min Woo Lee",        score: -2,  totalStrokes: 286, madeCut: true,  position: "T18", round: 4, status: "complete" },
+      { displayName: "Akshay Bhatia",      score: -1,  totalStrokes: 287, madeCut: true,  position: "T20", round: 4, status: "complete" },
+      { displayName: "Sepp Straka",        score:  0,  totalStrokes: 288, madeCut: true,  position: "T22", round: 4, status: "complete" },
+      { displayName: "Adam Scott",         score:  1,  totalStrokes: 289, madeCut: true,  position: "T24", round: 4, status: "complete" },
+      { displayName: "Dustin Johnson",     score:  2,  totalStrokes: 290, madeCut: true,  position: "T26", round: 4, status: "complete" },
+      { displayName: "Tony Finau",         score:  3,  totalStrokes: 291, madeCut: true,  position: "T28", round: 4, status: "complete" },
+      { displayName: "Tyrrell Hatton",     score:  4,  totalStrokes: 292, madeCut: true,  position: "T30", round: 4, status: "complete" },
+      { displayName: "Rickie Fowler",      score:  5,  totalStrokes: 293, madeCut: true,  position: "T32", round: 4, status: "complete" },
+      { displayName: "Cameron Young",      score:  6,  totalStrokes: 294, madeCut: true,  position: "T34", round: 4, status: "complete" },
+      // Missed cut
+      { displayName: "Tiger Woods",        score:  8,  totalStrokes: 152, madeCut: false, position: "MC",  round: 2, status: "cut" },
+      { displayName: "Phil Mickelson",     score: 10,  totalStrokes: 154, madeCut: false, position: "MC",  round: 2, status: "cut" },
+      { displayName: "Cameron Smith",      score:  7,  totalStrokes: 151, madeCut: false, position: "MC",  round: 2, status: "cut" },
+      { displayName: "Justin Rose",        score:  9,  totalStrokes: 153, madeCut: false, position: "MC",  round: 2, status: "cut" },
+    ],
+  };
+}
+
 export async function fetchLeaderboardById(
   eventId: string
 ): Promise<ESPNLeaderboard | null> {

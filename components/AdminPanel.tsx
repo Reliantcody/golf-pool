@@ -96,9 +96,18 @@ export default function AdminPanel() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-green-900">Pool Admin</h1>
-        <button onClick={() => setAuthed(false)} className="text-xs text-gray-400 underline">
-          Lock
-        </button>
+        <div className="flex items-center gap-4">
+          <a
+            href="/?preview=1"
+            target="_blank"
+            className="text-xs bg-green-700 text-white px-3 py-1.5 rounded-full font-semibold hover:bg-green-600"
+          >
+            Preview Scoring ↗
+          </a>
+          <button onClick={() => setAuthed(false)} className="text-xs text-gray-400 underline">
+            Lock
+          </button>
+        </div>
       </div>
 
       {resetMsg && (
