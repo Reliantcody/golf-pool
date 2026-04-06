@@ -21,13 +21,13 @@ export async function POST(req: NextRequest) {
     if (!isSubmissionOpen(major)) {
       return NextResponse.json({ error: "Submission deadline has passed" }, { status: 400 });
     }
-    if (!Array.isArray(players) || players.length !== 5) {
-      return NextResponse.json({ error: "You must pick exactly 5 players" }, { status: 400 });
+    if (!Array.isArray(players) || players.length !== 6) {
+      return NextResponse.json({ error: "You must pick exactly 6 players" }, { status: 400 });
     }
 
     const trimmedPlayers = players.map((p) => p.trim()).filter(Boolean);
-    if (trimmedPlayers.length !== 5) {
-      return NextResponse.json({ error: "All 5 player names are required" }, { status: 400 });
+    if (trimmedPlayers.length !== 6) {
+      return NextResponse.json({ error: "All 6 player names are required" }, { status: 400 });
     }
 
     const unique = new Set(trimmedPlayers.map((p) => p.toLowerCase()));

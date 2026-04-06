@@ -77,10 +77,12 @@ export function scoreMajor(
   });
 
   const missedCutCount = playerResults.filter((p) => !p.madeCut && !p.notStarted).length;
+  const madeCutCount = playerResults.filter((p) => p.madeCut).length;
 
-  // Apply missed cut rule: if >1 missed cut, replace those with worst made-cut score
+  // Apply missed cut rule: if fewer than 4 of your 6 players made the cut,
+  // replace all missed-cut players with the worst made-cut score in the full field
   let adjustedResults = playerResults.map((p) => ({ ...p }));
-  if (missedCutCount > 1) {
+  if (madeCutCount < 4 && missedCutCount > 0) {
     adjustedResults = adjustedResults.map((p) => {
       if (!p.madeCut && !p.notStarted) {
         return { ...p, score: worstMadeCutScore, adjusted: true };

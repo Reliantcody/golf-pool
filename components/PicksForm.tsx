@@ -18,9 +18,9 @@ export default function PicksForm({
   existingPicks,
 }: PicksFormProps) {
   const [players, setPlayers] = useState<string[]>(
-    existingPicks.length === 5
+    existingPicks.length === 6
       ? existingPicks
-      : [...existingPicks, ...Array(5 - existingPicks.length).fill("")]
+      : [...existingPicks, ...Array(6 - existingPicks.length).fill("")]
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -58,11 +58,11 @@ export default function PicksForm({
 
     const trimmedPlayers = players.map((p) => p.trim());
     if (trimmedPlayers.some((p) => !p)) {
-      setError("Please select all 5 players.");
+      setError("Please select all 6 players.");
       return;
     }
     const unique = new Set(trimmedPlayers.map((p) => p.toLowerCase()));
-    if (unique.size !== 5) {
+    if (unique.size !== 6) {
       setError("Each player must be different.");
       return;
     }
@@ -129,7 +129,7 @@ export default function PicksForm({
 
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Pick 5 Players
+          Pick 6 Players
           <span className="text-gray-400 font-normal ml-2 text-xs">
             {fieldLoading ? "Loading field..." : `${fieldPlayers.length} players · type to search`}
           </span>

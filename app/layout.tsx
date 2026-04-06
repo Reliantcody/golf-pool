@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="text-2xl">⛳</span>
                 <div>
                   <p className="text-white font-bold text-base leading-tight tracking-tight">Golf Pool 2026</p>
-                  <p className="text-green-400 text-[11px] leading-tight">4 Majors · Pick 5 · Score 4</p>
+                  <p className="text-green-400 text-[11px] leading-tight">4 Majors · Pick 6 · Score 4</p>
                 </div>
               </a>
               <nav className="flex items-center gap-3 text-sm font-semibold">

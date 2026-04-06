@@ -135,23 +135,23 @@ export default async function HomePage({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
           <div className="p-5">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl mb-3">🏌️</div>
-            <p className="font-bold text-gray-900 mb-1">Pick 5 Players</p>
+            <p className="font-bold text-gray-900 mb-1">Pick 6 Players</p>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Choose 5 golfers for each major. You can only use each player <strong>once</strong> across all 4 majors — 20 unique picks total.
+              Choose 6 golfers for each major. You can only use each player <strong>once</strong> across all 4 majors — 24 unique picks total.
             </p>
           </div>
           <div className="p-5">
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-xl mb-3">📋</div>
             <p className="font-bold text-gray-900 mb-1">Score Your Best 4</p>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Your major score = your <strong>4 best finishes</strong> combined (total over/under par). The worst player's score is dropped each major.
+              Your major score = your <strong>4 best finishes</strong> added together (total over/under par). Your 2 worst players are dropped each major.
             </p>
           </div>
           <div className="p-5">
             <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-xl mb-3">✂️</div>
             <p className="font-bold text-gray-900 mb-1">Missed Cut Rule</p>
             <p className="text-sm text-gray-500 leading-relaxed">
-              If <strong>2 or more</strong> of your players miss the cut, each of them automatically scores the <strong>worst score</strong> of any player who made the cut.
+              If <strong>fewer than 4</strong> of your players make the cut, every missed-cut player automatically scores the <strong>worst score</strong> of any player who did make the cut.
             </p>
           </div>
           <div className="p-5">
@@ -164,7 +164,7 @@ export default async function HomePage({
         </div>
         <div className="bg-gray-50 px-6 py-3 border-t">
           <p className="text-xs text-gray-400">
-            Example: Your 5 players finish at <span className="font-mono">-8, -5, -3, +2, MC</span> → drop <span className="font-mono">+2</span> (worst) → your major score is <span className="font-mono font-semibold text-green-700">-16</span>
+            Example: Your 6 players finish at <span className="font-mono">-8, -5, -3, -1, +2, MC</span> → drop <span className="font-mono">+2</span> and <span className="font-mono">MC</span> (2 worst) → your major score is <span className="font-mono font-semibold text-green-700">-17</span>
           </p>
         </div>
       </div>

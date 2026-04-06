@@ -83,9 +83,9 @@ export default async function PicksPage() {
       <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-800">
         <p className="font-semibold mb-1">Remember</p>
         <ul className="space-y-0.5 text-xs">
-          <li>• Pick exactly 5 players · Score = best 4 of your 5</li>
+          <li>• Pick exactly 6 players · Score = best 4 finishes (total over/under par)</li>
           <li>• Cannot reuse a player from a previous major this year</li>
-          <li>• If more than 1 player misses the cut, they score the worst made-cut score</li>
+          <li>• If fewer than 4 of your players make the cut, missed-cut players score the worst made-cut score</li>
         </ul>
       </div>
 
