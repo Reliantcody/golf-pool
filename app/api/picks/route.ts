@@ -3,8 +3,21 @@ import {
   getOrCreateParticipant,
   submitPicks,
   getMajorPicks,
+  getAllParticipantsWithPicks,
 } from "@/lib/db";
-import { getMajorById, isSubmissionOpen } from "@/lib/majors";
+import { MAJORS, getMajorById, isSubmissionOpen } from "@/lib/majors";
+
+// After the first major's deadline, only existing participants can submit
+async function isNewParticipantAllowed(name: string): Promise<boolean> {
+  const firstMajorDeadline = new Date(MAJORS[0].submissionDeadline);
+  if (new Date() < firstMajorDeadline) return true; // pool is still open to anyone
+
+  // Check if this name matches an existing participant
+  const all = await getAllParticipantsWithPicks();
+  return all.some(
+    (p) => p.name.toLowerCase() === name.trim().toLowerCase()
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,11 +59,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for duplicates within the submission
     const unique = new Set(trimmedPlayers.map((p) => p.toLowerCase()));
     if (unique.size !== 5) {
       return NextResponse.json(
         { error: "Each player must be unique within your picks" },
+        { status: 400 }
+      );
+    }
+
+    // Check pool is not closed to new entrants
+    const allowed = await isNewParticipantAllowed(name);
+    if (!allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "The pool is closed to new participants after the first major. Only players who entered for The Masters can submit picks.",
+        },
         { status: 400 }
       );
     }
