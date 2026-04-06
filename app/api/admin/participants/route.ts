@@ -34,8 +34,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const sql = neon(process.env.DATABASE_URL!);
-  await sql`
-    UPDATE participants SET pin_hash = ${hashPin(newPin)} WHERE id = ${participantId}
-  `;
+  await sql`UPDATE participants SET pin_hash = ${hashPin(newPin)} WHERE id = ${participantId}`;
+  return NextResponse.json({ success: true });
+}
+
+// DELETE: remove a participant and all their picks
+export async function DELETE(req: NextRequest) {
+  if (!checkAdmin(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { participantId } = await req.json();
+  if (!participantId) {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+  const sql = neon(process.env.DATABASE_URL!);
+  await sql`DELETE FROM participants WHERE id = ${participantId}`;
   return NextResponse.json({ success: true });
 }

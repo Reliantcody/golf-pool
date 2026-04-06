@@ -39,6 +39,20 @@ export default function AdminPanel() {
       setResetMsg(`PIN reset for ${resetTarget.name} to: ${newPin}`);
       setResetTarget(null);
       setNewPin("");
+      load(password);
+    }
+  };
+
+  const deleteParticipant = async (p: Participant) => {
+    if (!confirm(`Delete ${p.name} and all their picks? This cannot be undone.`)) return;
+    const res = await fetch("/api/admin/participants", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify({ participantId: p.id }),
+    });
+    if (res.ok) {
+      setResetMsg(`${p.name} has been deleted.`);
+      load(password);
     }
   };
 
@@ -139,12 +153,20 @@ export default function AdminPanel() {
                 </td>
                 <td className="text-center px-3 py-3 text-gray-500">{p.pick_count}</td>
                 <td className="text-center px-3 py-3">
-                  <button
-                    onClick={() => { setResetTarget(p); setResetMsg(""); }}
-                    className="text-xs text-blue-600 hover:text-blue-800 underline"
-                  >
-                    Reset PIN
-                  </button>
+                  <div className="flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => { setResetTarget(p); setResetMsg(""); }}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Reset PIN
+                    </button>
+                    <button
+                      onClick={() => deleteParticipant(p)}
+                      className="text-xs text-red-500 hover:text-red-700 underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
