@@ -28,7 +28,7 @@ export default function RootLayout({
                 Leaderboard
               </a>
               <a href="/picks" className="bg-yellow-500 hover:bg-yellow-400 text-green-900 px-3 py-1 rounded-full transition-colors font-semibold">
-                Enter Picks
+                My Picks
               </a>
             </nav>
           </div>

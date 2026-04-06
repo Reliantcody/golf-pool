@@ -12,8 +12,13 @@ export async function initDB() {
     CREATE TABLE IF NOT EXISTS participants (
       id SERIAL PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
+      pin_hash VARCHAR(64),
       created_at TIMESTAMPTZ DEFAULT NOW()
     )
+  `;
+  // Add pin_hash to existing tables if upgrading
+  await sql`
+    ALTER TABLE participants ADD COLUMN IF NOT EXISTS pin_hash VARCHAR(64)
   `;
   await sql`
     CREATE TABLE IF NOT EXISTS picks (
@@ -165,4 +170,67 @@ export async function getUsedPlayersByName(
     ORDER BY pk.major_id, pk.id
   `;
   return rows.map((r) => r.player_name as string);
+}
+
+// ── Auth ──────────────────────────────────────────────────────────
+
+export interface ParticipantAuth {
+  id: number;
+  name: string;
+  hasPin: boolean;
+}
+
+export async function findParticipantByName(
+  name: string
+): Promise<ParticipantAuth | null> {
+  const sql = getSQL();
+  const rows = await sql`
+    SELECT id, name, pin_hash FROM participants
+    WHERE lower(name) = lower(${name.trim()}) LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  return {
+    id: rows[0].id as number,
+    name: rows[0].name as string,
+    hasPin: !!rows[0].pin_hash,
+  };
+}
+
+export async function verifyParticipantPin(
+  name: string,
+  pinHash: string
+): Promise<ParticipantAuth | null> {
+  const sql = getSQL();
+  const rows = await sql`
+    SELECT id, name FROM participants
+    WHERE lower(name) = lower(${name.trim()})
+      AND pin_hash = ${pinHash}
+    LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  return { id: rows[0].id as number, name: rows[0].name as string, hasPin: true };
+}
+
+export async function registerParticipant(
+  name: string,
+  pinHash: string
+): Promise<{ id: number; name: string }> {
+  const sql = getSQL();
+  const trimmed = name.trim();
+  // Upsert: create or update PIN for this name
+  const existing = await sql`
+    SELECT id FROM participants WHERE lower(name) = lower(${trimmed}) LIMIT 1
+  `;
+  if (existing.length > 0) {
+    // Set PIN on existing participant (only allowed if they have none)
+    await sql`
+      UPDATE participants SET pin_hash = ${pinHash}
+      WHERE id = ${existing[0].id as number} AND pin_hash IS NULL
+    `;
+    return { id: existing[0].id as number, name: trimmed };
+  }
+  const result = await sql`
+    INSERT INTO participants (name, pin_hash) VALUES (${trimmed}, ${pinHash}) RETURNING id
+  `;
+  return { id: result[0].id as number, name: trimmed };
 }
