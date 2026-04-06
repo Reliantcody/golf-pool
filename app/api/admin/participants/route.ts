@@ -14,11 +14,11 @@ export async function GET(req: NextRequest) {
   }
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT p.id, p.name, p.pin_hash IS NOT NULL as has_pin, p.created_at,
+    SELECT p.id, p.name, p.pin, p.paid, p.created_at,
            COUNT(pk.id) as pick_count
     FROM participants p
     LEFT JOIN picks pk ON pk.participant_id = p.id
-    GROUP BY p.id, p.name, p.pin_hash, p.created_at
+    GROUP BY p.id, p.name, p.pin, p.paid, p.created_at
     ORDER BY p.name
   `;
   return NextResponse.json({ participants: rows });
@@ -34,7 +34,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
   const sql = neon(process.env.DATABASE_URL!);
-  await sql`UPDATE participants SET pin_hash = ${hashPin(newPin)} WHERE id = ${participantId}`;
+  await sql`UPDATE participants SET pin = ${newPin}, pin_hash = ${newPin} WHERE id = ${participantId}`;
+  return NextResponse.json({ success: true });
+}
+
+// PATCH: toggle paid status
+export async function PATCH(req: NextRequest) {
+  if (!checkAdmin(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const { participantId, paid } = await req.json();
+  if (participantId === undefined || paid === undefined) {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+  const sql = neon(process.env.DATABASE_URL!);
+  await sql`UPDATE participants SET paid = ${paid} WHERE id = ${participantId}`;
   return NextResponse.json({ success: true });
 }
 

@@ -8,11 +8,9 @@ const secret = () =>
     process.env.AUTH_SECRET ?? "golf-pool-dev-secret-change-in-production"
   );
 
+// PIN stored as plaintext for this app (friend golf pool — admin needs to see/share them)
 export function hashPin(pin: string): string {
-  return crypto
-    .createHmac("sha256", process.env.AUTH_SECRET ?? "golf-pool-dev-secret")
-    .update(pin)
-    .digest("hex");
+  return pin;
 }
 
 export async function createSessionToken(

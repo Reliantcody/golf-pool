@@ -4,7 +4,8 @@ import { useState } from "react";
 interface Participant {
   id: number;
   name: string;
-  has_pin: boolean;
+  pin: string | null;
+  paid: boolean;
   pick_count: number;
 }
 
@@ -41,6 +42,15 @@ export default function AdminPanel() {
       setNewPin("");
       load(password);
     }
+  };
+
+  const togglePaid = async (p: Participant) => {
+    const res = await fetch("/api/admin/participants", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      body: JSON.stringify({ participantId: p.id, paid: !p.paid }),
+    });
+    if (res.ok) load(password);
   };
 
   const deleteParticipant = async (p: Participant) => {
@@ -137,7 +147,8 @@ export default function AdminPanel() {
           <thead className="bg-green-900 text-white">
             <tr>
               <th className="text-left px-4 py-3">Name</th>
-              <th className="text-center px-3 py-3">PIN set</th>
+              <th className="text-center px-3 py-3">PIN</th>
+              <th className="text-center px-3 py-3">Paid</th>
               <th className="text-center px-3 py-3">Picks</th>
               <th className="text-center px-3 py-3">Actions</th>
             </tr>
@@ -146,10 +157,23 @@ export default function AdminPanel() {
             {participants.map((p, i) => (
               <tr key={p.id} className={`border-t ${i % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
                 <td className="px-4 py-3 font-semibold">{p.name}</td>
+                <td className="text-center px-3 py-3 font-mono">
+                  {p.pin
+                    ? <span className="text-green-800 font-semibold">{p.pin}</span>
+                    : <span className="text-gray-400 text-xs">not set</span>}
+                </td>
                 <td className="text-center px-3 py-3">
-                  {p.has_pin
-                    ? <span className="text-green-600 text-xs font-semibold">✓ Yes</span>
-                    : <span className="text-red-400 text-xs">No PIN</span>}
+                  <button
+                    onClick={() => togglePaid(p)}
+                    className={`w-6 h-6 rounded border-2 flex items-center justify-center mx-auto transition-colors ${
+                      p.paid
+                        ? "bg-green-600 border-green-600 text-white"
+                        : "border-gray-300 hover:border-green-400"
+                    }`}
+                    title={p.paid ? "Mark unpaid" : "Mark paid"}
+                  >
+                    {p.paid && <span className="text-xs font-bold">✓</span>}
+                  </button>
                 </td>
                 <td className="text-center px-3 py-3 text-gray-500">{p.pick_count}</td>
                 <td className="text-center px-3 py-3">

@@ -185,26 +185,26 @@ export async function findParticipantByName(
 ): Promise<ParticipantAuth | null> {
   const sql = getSQL();
   const rows = await sql`
-    SELECT id, name, pin_hash FROM participants
+    SELECT id, name, pin FROM participants
     WHERE lower(name) = lower(${name.trim()}) LIMIT 1
   `;
   if (rows.length === 0) return null;
   return {
     id: rows[0].id as number,
     name: rows[0].name as string,
-    hasPin: !!rows[0].pin_hash,
+    hasPin: !!rows[0].pin,
   };
 }
 
 export async function verifyParticipantPin(
   name: string,
-  pinHash: string
+  pin: string
 ): Promise<ParticipantAuth | null> {
   const sql = getSQL();
   const rows = await sql`
     SELECT id, name FROM participants
     WHERE lower(name) = lower(${name.trim()})
-      AND pin_hash = ${pinHash}
+      AND pin = ${pin}
     LIMIT 1
   `;
   if (rows.length === 0) return null;
@@ -213,24 +213,23 @@ export async function verifyParticipantPin(
 
 export async function registerParticipant(
   name: string,
-  pinHash: string
+  pin: string
 ): Promise<{ id: number; name: string }> {
   const sql = getSQL();
   const trimmed = name.trim();
-  // Upsert: create or update PIN for this name
   const existing = await sql`
     SELECT id FROM participants WHERE lower(name) = lower(${trimmed}) LIMIT 1
   `;
   if (existing.length > 0) {
-    // Set PIN on existing participant (only allowed if they have none)
+    // Attach PIN to existing account (only if they don't have one yet)
     await sql`
-      UPDATE participants SET pin_hash = ${pinHash}
-      WHERE id = ${existing[0].id as number} AND pin_hash IS NULL
+      UPDATE participants SET pin = ${pin}, pin_hash = ${pin}
+      WHERE id = ${existing[0].id as number} AND pin IS NULL
     `;
     return { id: existing[0].id as number, name: trimmed };
   }
   const result = await sql`
-    INSERT INTO participants (name, pin_hash) VALUES (${trimmed}, ${pinHash}) RETURNING id
+    INSERT INTO participants (name, pin, pin_hash) VALUES (${trimmed}, ${pin}, ${pin}) RETURNING id
   `;
   return { id: result[0].id as number, name: trimmed };
 }
