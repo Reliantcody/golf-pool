@@ -123,21 +123,31 @@ export default async function PicksPage() {
       {existingPicks.length > 0 && (
         <div className="bg-white rounded-xl border p-4">
           <h3 className="font-semibold text-green-900 mb-3">
-            Submitted Picks ({existingPicks.length})
+            Submitted ({existingPicks.length})
+            {status === "upcoming" && (
+              <span className="ml-2 text-xs font-normal text-gray-400">
+                · picks revealed when the tournament begins
+              </span>
+            )}
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {existingPicks.map(
               (entry: { participantName: string; players: string[] }, i: number) => (
-                <div key={i} className="flex items-start gap-3">
+                <div key={i} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-bold text-sm flex-shrink-0">
                     {entry.participantName[0].toUpperCase()}
                   </div>
                   <div>
                     <p className="font-semibold text-sm">{entry.participantName}</p>
-                    <p className="text-xs text-gray-500">
-                      {entry.players.join(" · ")}
-                    </p>
+                    {status !== "upcoming" && (
+                      <p className="text-xs text-gray-500">
+                        {entry.players.join(" · ")}
+                      </p>
+                    )}
                   </div>
+                  {status === "upcoming" && (
+                    <span className="ml-auto text-xs text-green-600 font-semibold">✓ In</span>
+                  )}
                 </div>
               )
             )}

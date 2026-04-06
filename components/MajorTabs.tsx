@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { MAJORS } from "@/lib/majors";
+import { MAJORS, getMajorStatus } from "@/lib/majors";
 import { formatScore } from "@/lib/scoring";
 
 interface PlayerResult {
@@ -31,6 +31,9 @@ export default function MajorTabs({ standings }: { standings: Standing[] }) {
   const [activeTab, setActiveTab] = useState(0);
 
   const activeMajor = MAJORS[activeTab];
+  const activeMajorStatus = getMajorStatus(activeMajor);
+  const picksHidden = activeMajorStatus === "upcoming"; // hide picks until tournament starts
+
   const majorStandings = standings
     .map((s) => ({
       ...s,
@@ -71,14 +74,16 @@ export default function MajorTabs({ standings }: { standings: Standing[] }) {
               <tr>
                 <th className="text-left px-4 py-3">#</th>
                 <th className="text-left px-4 py-3">Participant</th>
-                <th className="text-left px-4 py-3">Picks</th>
+                <th className="text-left px-4 py-3">
+                  {picksHidden ? "Status" : "Picks"}
+                </th>
                 <th className="text-center px-4 py-3">Score</th>
               </tr>
             </thead>
             <tbody>
               {majorStandings.map((s, i) => {
                 const mr = s.majorResult;
-                const hasPicks = mr?.playerResults?.length > 0 && !mr.playerResults[0]?.notStarted;
+                const hasPicks = mr?.playerResults?.length > 0;
 
                 return (
                   <tr
@@ -88,7 +93,16 @@ export default function MajorTabs({ standings }: { standings: Standing[] }) {
                     <td className="px-4 py-3 text-gray-500 font-bold">{i + 1}</td>
                     <td className="px-4 py-3 font-semibold">{s.name}</td>
                     <td className="px-4 py-3">
-                      {mr?.playerResults?.length > 0 ? (
+                      {picksHidden ? (
+                        // Tournament hasn't started — just show submitted / not submitted
+                        hasPicks ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                            ✓ Submitted
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">Not submitted</span>
+                        )
+                      ) : hasPicks ? (
                         <ul className="space-y-0.5">
                           {mr.playerResults.map((p: PlayerResult, pi: number) => (
                             <li key={pi} className="flex items-center gap-2 text-xs">
